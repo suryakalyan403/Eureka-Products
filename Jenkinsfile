@@ -22,7 +22,7 @@ pipeline {
     stage('Build') {
       steps {
         echo "***** Testing the Jenkins File *****"
-        sh "mvn -version"
+        sh "mvn clean package -DskipTests=true"
         sh "java -version"
       }
     }
