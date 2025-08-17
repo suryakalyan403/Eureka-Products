@@ -8,6 +8,7 @@ pipeline {
   tools {
   
     maven 'Maven-3.8.8'
+    java  'JDK-17'
 
    }
   //environment {
@@ -21,6 +22,7 @@ pipeline {
       steps {
         echo "***** Testing the Jenkins File *****"
         sh "mvn -version"
+        sh "java -version"
       }
     }
   }
