@@ -8,14 +8,15 @@ pipeline {
   tools {
   
     maven 'Maven-3.8.8'
-    java  'JDK-17'
+    jdk  'JDK-17'
 
    }
+
   //environment {
   //  MVN_HOME = "/opt/apache-maven-3.8.8"
   //  JAVA_HOME = "/opt/jdk-17.0.2"
     //PATH = "${MVN_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
- // }
+  // }
 
   stages {
     stage('Build') {
