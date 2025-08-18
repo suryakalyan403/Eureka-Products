@@ -8,7 +8,11 @@ pipeline {
         maven 'Maven-3.8.8'
         jdk 'JDK-17'
     }
-
+    environment {
+        APPLICATION_NAME = 'eureka'
+        SONAR_TOKEN = credentials('sonar_creds')
+        SONAR_URL = 'http://34.132.120.13:9000'
+    }
     stages {
         stage('Build') {
             steps {
@@ -21,12 +25,18 @@ pipeline {
         stage('Sonar') {
             steps {
                 echo "Starting the Sonar scan.........."
-                sh """
-                    mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=test \
-                        -Dsonar.host.url=http://34.132.120.13:9000 \
-                        -Dsonar.login=squ_d5e96b0ef5388b80cbfb834f12ac1ece5c47032e
-                """
+                withSonarQubeEnv('SonarQube'){
+                    sh """
+                       mvn clean verify sonar:sonar \
+                       -Dsonar.projectKey=test \
+                       -Dsonar.host.url=${env.SONAR_URL} \
+               	       -Dsonar.login=${SONAR_TOKEN}
+                    """
+               }
+               timeout (time: 2, unit: 'MINUTES'){
+                   waitForQualityGate abortPipeline: true
+
+               }
             }
         }
     }
