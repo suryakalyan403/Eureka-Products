@@ -1,4 +1,6 @@
 // This JenkinsFile is for Eureka Deployment 
+// This JenkinsFile is for Eureka Deployment
+// This JenkinsFile is for Eureka Deployment
 pipeline {
     agent {
         label "k8s-jenkins-slave"
@@ -8,11 +10,13 @@ pipeline {
         maven 'Maven-3.8.8'
         jdk 'JDK-17'
     }
+
     environment {
         APPLICATION_NAME = 'eureka'
-        SONAR_TOKEN = credentials('sonar_creds')
-        SONAR_URL = 'http://34.132.120.13:9000'
+        SONAR_TOKEN      = credentials('sonar_creds')
+        SONAR_URL        = 'http://34.132.120.13:9000'
     }
+
     stages {
         stage('Build') {
             steps {
@@ -25,18 +29,23 @@ pipeline {
         stage('Sonar') {
             steps {
                 echo "Starting the Sonar scan.........."
-                withSonarQubeEnv('SonarQube'){
+                withSonarQubeEnv('SonarQube') {
                     sh """
-                       mvn clean verify sonar:sonar \
-                       -Dsonar.projectKey=test \
-                       -Dsonar.host.url=${env.SONAR_URL} \
-               	       -Dsonar.login=${SONAR_TOKEN}
+                        mvn clean verify sonar:sonar \
+                          -Dsonar.projectKey=test \
+                          -Dsonar.host.url=${env.SONAR_URL} \
+                          -Dsonar.login=${SONAR_TOKEN}
                     """
-               }
-               timeout (time: 2, unit: 'MINUTES'){
-                   waitForQualityGate abortPipeline: true
+                }
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
-               }
+        stage('Docker') {
+            steps {
+                echo "Currently in the docker stage"
             }
         }
     }
