@@ -37,7 +37,7 @@ pipeline {
                           -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
-                timeout(time: 2, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
