@@ -15,6 +15,7 @@ pipeline {
         APPLICATION_NAME = 'eureka'
         SONAR_TOKEN      = credentials('sonar_creds')
         SONAR_URL        = 'http://35.188.83.190:9000'
+        // Make sure pipeline-utility-steps plugin installed in the jenkins, if you are using readMaven packages
         POM_VERSION = readMavenPom().getVersion()
         POM_PACKAGING = readMavenPom().getPackaging()
     }
@@ -49,7 +50,7 @@ pipeline {
             steps {
                 echo "Currently in the docker stage"
                 echo "My JAR Source:  ${env.APPLICATION_NAME}-${env.POM_VERSION}"
-                echo "My JAR Destination: ${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}-{env.POM_PACKAGING}"
+                echo "My JAR Destination: ${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}-${env.POM_PACKAGING}"
 
             }
         }
