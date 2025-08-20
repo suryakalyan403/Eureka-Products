@@ -15,9 +15,14 @@ pipeline {
         APPLICATION_NAME = 'eureka'
         SONAR_TOKEN      = credentials('sonar_creds')
         SONAR_URL        = 'http://35.188.83.190:9000'
-        // Make sure pipeline-utility-steps plugin installed in the jenkins, if you are using readMaven packages
+        // Make sure pipeline-utility-steps plugin installed in the jenkins server, if you are using readMaven packages
+        // Wehave to provide neccessary approvals
         POM_VERSION = readMavenPom().getVersion()
         POM_PACKAGING = readMavenPom().getPackaging()
+
+        //Docker Info
+        DOCKER_HUB = "docker.io/7981689475"
+        
     }
 
     stages {
@@ -49,8 +54,16 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo "Currently in the docker stage"
-                echo "My JAR Source:  ${env.APPLICATION_NAME}-${env.POM_VERSION}"
-                echo "My JAR Destination: ${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}-${env.POM_PACKAGING}"
+                echo "My JAR Source:  ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
+                echo "My JAR Destination: ${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.${env.POM_PACKAGING}"
+
+
+                sh """
+                     pwd 
+                     ls -lart
+                //   echo "********************** Buliding Docker Image **********************"
+                //   docker build --no-cache -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
+                """
 
             }
         }
