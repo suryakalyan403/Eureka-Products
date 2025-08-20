@@ -59,12 +59,10 @@ pipeline {
 
 
                 sh """
-                     pwd
-                     whoami
-                     hostname 
-                     ls -lart
-                //   echo "********************** Buliding Docker Image **********************"
-                //   docker build --no-cache -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
+                   echo "********************** Buliding Docker Image **********************"
+                   echo "My current location"
+                   pwd
+                   docker build --no-cache --build-arg JAR_SOURCE=${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
                 """
 
             }
