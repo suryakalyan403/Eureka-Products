@@ -64,7 +64,7 @@ pipeline {
                    pwd
                    cp ${WORKSPACE}/target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}
                    docker build --no-cache \
-                    --build-arg JAR_SOURCE=${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} \
+                    --build-arg JAR_SOURCE=target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} \
                     -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \
                     .
                 """
