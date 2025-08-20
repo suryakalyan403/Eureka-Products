@@ -62,7 +62,7 @@ pipeline {
                    echo "********************** Buliding Docker Image **********************"
                    echo "My current location"
                    pwd
-                   cp ${WORK_SPACE}/MBP_main/target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}
+                   cp ${WORKSPACE}/MBP_main/target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}
                    docker build --no-cache --build-arg JAR_SOURCE=${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
                 """
 
