@@ -59,7 +59,9 @@ pipeline {
 
 
                 sh """
-                     pwd 
+                     pwd
+                     whoami
+                     hostname 
                      ls -lart
                 //   echo "********************** Buliding Docker Image **********************"
                 //   docker build --no-cache -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
