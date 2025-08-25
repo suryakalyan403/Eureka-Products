@@ -23,6 +23,8 @@ pipeline {
         //Docker Info
         DOCKER_HUB = "docker.io/7981689475"
         DOCK_USR_NAME = "7981689475"
+        
+        // Docker Username and Password
         DOCK_PSWD = credentials('docker_creds')
         
     }
@@ -68,7 +70,7 @@ pipeline {
                     -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \
                     .
                    echo "******************** Login to the Docker Registry  **********************"
-                   docker login -u ${DOCK_USR_NAME} -p ${DOCK_USR_NAME}
+                   docker login -u ${DOCK_USR_NAME} -p ${DOCK_PSWD}
 
                    docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
                 """
