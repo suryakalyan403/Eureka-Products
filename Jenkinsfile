@@ -22,6 +22,8 @@ pipeline {
 
         //Docker Info
         DOCKER_HUB = "docker.io/7981689475"
+        DOCK_USR_NAME = "7981689475"
+        DOCK_PSWD = credentials('docker_creds')
         
     }
 
@@ -60,13 +62,15 @@ pipeline {
 
                 sh """
                    echo "********************** Buliding Docker Image **********************"
-                   echo "My current location"
-                   pwd
                    cp ${WORKSPACE}/target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}
                    docker build --no-cache \
                     --build-arg JAR_SOURCE=target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} \
                     -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \
                     .
+                   echo "******************** Login to the Docker Registry  **********************"
+                   docker login -u ${DOCK_USR_NAME} -p ${DOCK_USR_NAME}
+
+                   docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
                 """
 
             }
