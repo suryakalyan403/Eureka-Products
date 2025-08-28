@@ -86,7 +86,7 @@ pipeline {
 
                 sh """
                    
-                   sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$docker_server \'docker run -dit --name ${env.APPLICATION_NAME}-dev 5761:8761 ${env.DOCKER_HUB}/${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}'
+                   sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$docker_server \'docker run -dit --name ${env.APPLICATION_NAME}-dev 5761:8761 ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}'
 
                    """
 
