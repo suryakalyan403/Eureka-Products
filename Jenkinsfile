@@ -76,6 +76,22 @@ pipeline {
 
             }
         }
+
+       stage ('Deploy to Dev') {
+
+          steps {
+             
+             echo "Deploying to Dev Server"
+             withCredentials([usernamePassword(credentialsId: 'docker_server_creds', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+
+                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$docker_server \"hsotname -i""
+
+              }
+
+           }
+
+       }
+
     }
 }
 
