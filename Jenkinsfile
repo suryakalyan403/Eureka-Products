@@ -88,6 +88,11 @@ pipeline {
 
               }
 
+              // create a container
+              // docker container create imagename
+              docker run -dit --name ${env.APPLICATION_NAME}-dev 5761:8761 ${env.DOCKER_HUB}/${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
+              
+
            }
 
        }
@@ -95,3 +100,10 @@ pipeline {
     }
 }
 
+// Eureka
+// Container Port 8761
+
+// dev hp: 5761
+// tst hp: 6761
+// stg hp: 7761
+// prod hp: 8761 
