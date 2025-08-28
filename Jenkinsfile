@@ -84,7 +84,7 @@ pipeline {
              echo "Deploying to Dev Server"
              withCredentials([usernamePassword(credentialsId: 'docker_server_creds', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
 
-                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$docker_server \"hsotname -i""
+                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$docker_server \'hostname -i'"
 
               }
 
