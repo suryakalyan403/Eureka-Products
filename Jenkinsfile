@@ -12,7 +12,7 @@ pipeline {
     }
 
     environment {
-        APPLICATION_NAME = 'eureka'
+        APPLICATION_NAME = 'Eureka'
         SONAR_TOKEN      = credentials('sonar_creds')
         SONAR_URL        = 'http://34.23.178.132:9000'
         // Make sure pipeline-utility-steps plugin installed in the jenkins server, if you are using readMaven packages
