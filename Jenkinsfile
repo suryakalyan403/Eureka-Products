@@ -32,6 +32,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "***** Testing the Jenkins File *****"
+                sh "hostname -i"
                 sh "mvn clean package -DskipTests=true"
                 sh "java -version"
             }
