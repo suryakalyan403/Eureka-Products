@@ -14,7 +14,7 @@ pipeline {
     environment {
         APPLICATION_NAME = 'eureka'
         SONAR_TOKEN      = credentials('sonar_creds')
-        SONAR_URL        = 'http://35.188.83.190:9000'
+        SONAR_URL        = 'http://34.23.178.132:9000'
         // Make sure pipeline-utility-steps plugin installed in the jenkins server, if you are using readMaven packages
         // Wehave to provide neccessary approvals
         POM_VERSION = readMavenPom().getVersion()
@@ -42,6 +42,7 @@ pipeline {
                 echo "Starting the Sonar scan.........."
                 withSonarQubeEnv('SonarQube') {
                     sh """
+                        hostname -i 
                         mvn clean verify sonar:sonar \
                           -Dsonar.projectKey=test \
                           -Dsonar.host.url=${env.SONAR_URL} \
