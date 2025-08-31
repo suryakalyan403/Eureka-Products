@@ -45,7 +45,7 @@ pipeline {
                     sh """
                         mvn clean verify sonar:sonar \
                           -Dsonar.projectKey=${env.APPLICATION_NAME} \
-                          -Dsonar.host.url=${env.SONAR_URL} \
+                          -Dsonar.host.url='http://$SONAR_IP:$SONAR_PORT' \
                           -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
@@ -87,7 +87,7 @@ pipeline {
 
                 sh """
                    
-                   sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$docker_server \'docker run -dit --name ${env.APPLICATION_NAME}-dev -p 5761:8761 ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}'
+                   sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \'docker run -dit --name ${env.APPLICATION_NAME}-dev -p 5761:8761 ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}'
 
                    """
 
