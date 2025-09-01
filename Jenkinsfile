@@ -65,27 +65,20 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo "***** Starting Docker Build Stage *****"
-                echo "JAR Source: ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
                 echo "JAR Destination: ${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.${env.POM_PACKAGING}"
+                 
+                def jarSource = ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}
+                def imageName = ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
 
-                sh """
-                   echo "********************** Building Docker Image **********************"
+                echo "JAR Source: ${jarSource}"
+                echo "IMAGE NAME: ${imageName}"
 
-                   # Copy the JAR for docker build context
-                   cp ${WORKSPACE}/target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} \
-                      ${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}
+                # Copy the JAR into Docker build context
+                cp ${WORKSPACE}/target/${jarSource} ${jarSource}
 
-                   # Build the Docker image
-                   docker build --no-cache \
-                       --build-arg JAR_SOURCE=target/${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} \
-                       -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} .
+                dockerBuildPush(jarSource, imageName).call()
+                
 
-                   echo "******************** Login to Docker Registry **********************"
-                   docker login -u ${DOCKER_CREDS_USR} -p ${DOCKER_CREDS_PSW}
-
-                   # Push the image
-                   docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
-                """
             }
         }
 
@@ -101,37 +94,72 @@ pipeline {
                 )]) {
 
                     script {
-                        // Pull the latest image
-                        sh '''
-                            sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
-                            "docker pull ${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        '''
 
-                        try {
-                            // Stop the running container if exists
-                            sh '''
-                                sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
-                                "docker stop ${APPLICATION_NAME}-dev || true"
-                            '''
-
-                            // Remove the container if exists
-                            sh '''
-                                sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
-                                "docker rm ${APPLICATION_NAME}-dev || true"
-                            '''
-                        } catch (err) {
-                            echo "Error caught during cleanup: $err"
-                        }
-
-                        // Run a fresh container
-                        sh '''
-                            sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
-                            "docker run -dit --name ${APPLICATION_NAME}-dev -p 5761:8761 ${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        '''
+                      def applicationName = ${APPLICATION_NAME}-dev
+                      def imageName = ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}
+                      def hostPort = "5761"
+                      def containerPort = "8761"
+                       
+                      dockerDeploy(applicationName, imageName, hostPort, containerPort).call()
+                     
                     }
                 }
             }
         }
+    }
+}
+
+
+
+def dockerBuildPush(jarsource,imagename) {
+    return {
+        sh """
+            echo "********************** Building Docker Image **********************"
+
+            # Build the Docker image
+            docker build --no-cache \
+              --build-arg JAR_SOURCE=target/${jarsource} \
+              -t ${imagename} .
+
+            echo "******************** Login to Docker Registry **********************"
+            docker login -u ${DOCKER_CREDS_USR} -p ${DOCKER_CREDS_PSW}
+
+            # Push the image
+            docker push ${imagename}
+        """
+    }
+}
+
+
+def dockerDeploy(applicationName, imageName,hostPort, containerPort) {
+    return {
+        // Pull the latest image
+        sh '''
+            sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
+            "docker pull ${imageName}"
+        '''
+
+        try {
+            // Stop the running container if it exists
+            sh '''
+                sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
+                "docker stop ${imageName} || true"
+            '''
+
+            // Remove the container if it exists
+            sh '''
+                sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
+                "docker rm ${imageName} || true"
+            '''
+        } catch (err) {
+            echo "Error caught during cleanup: $err"
+        }
+
+        // Run a fresh container
+        sh '''
+            sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
+            "docker run -dit --name ${applicationName} -p ${hostPort}:${containerPort} ${imageName}"
+        '''
     }
 }
 
