@@ -24,6 +24,40 @@ pipeline {
         DOCKER_CREDS = credentials('docker_creds')
     }
 
+    parameters {
+        choice(
+           name: 'scanOnly',
+           choices: ['no', 'yes'],
+           description: 'This will scan your application'
+        )
+        choice(
+            name: 'buildOnly',
+            choices: ['no', 'yes'],
+            description: 'This will only build your application'
+        )
+        choice(
+            name: 'dockerPush',
+            choices: ['no', 'yes'],
+            description: 'This will build a Docker image and push it to the registry'
+        )
+        choice(
+            name: 'deployToDev',
+            choices: ['no', 'yes'],
+            description: 'This will deploy the app to the Dev environment'
+        )
+        choice(
+            name: 'deployToStage',
+            choices: ['no', 'yes'],
+            description: 'This will deploy the app to the Stage environment'
+        )
+        choice(
+            name: 'deployToProd',
+            choices: ['no', 'yes'],
+            description: 'This will deploy the app to the Prod environment'
+        )
+
+    }
+
     stages {
 
         stage('Build') {
@@ -36,6 +70,12 @@ pipeline {
         }
 
         stage('Sonar') {
+           when {
+               anyof {
+                   expression { params.scanOnly == 'yes' }
+               }
+
+            }
             steps {
                 echo "***** Starting the SonarQube Scan *****"
                 withSonarQubeEnv('SonarQube') {
@@ -54,10 +94,16 @@ pipeline {
         }
 
         stage('Docker Build') {
+           when {
+               anyof {
+                   expression { params.dockerPush == 'yes' }
+               }
+
+            }
             steps {
                 script {
                     echo "***** Starting Docker Build Stage *****"
-
+                    def applicationName = "${APPLICATION_NAME}-dev"
                     def jarSource = "${APPLICATION_NAME}-${POM_VERSION}.${POM_PACKAGING}"
                     def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
 
@@ -65,13 +111,20 @@ pipeline {
                     echo "Image Name: ${imageName}"
 
                     sh "cp ${WORKSPACE}/target/${jarSource} ${jarSource}"
-
-                    dockerBuildPush(jarSource, imageName)
+                    
+                    imageValidation(jarSource,imageName, applicationName)
+                    
                 }
             }
         }
 
         stage('Deploy to Dev') {
+           when {
+               anyof {
+                   expression { params.deployToDev == 'yes' }
+               }
+
+            }
             steps {
                 echo "***** Deploying to Dev Server *****"
                 withCredentials([usernamePassword(
@@ -94,6 +147,31 @@ pipeline {
 }
 
 // --------- Functions ---------
+def buildApp(applicationName) {
+    return {
+        echo "Building the ${applicationName} application"
+        sh "mvn clean package -DskipTests=true"
+    }
+}
+
+
+def imageValidation(jarSource,imageName, applicationName) {
+    return {
+        echo "Attempting to Pull the Docker image"
+        try {
+            sh "docker pull ${imageName}"
+            echo "Image pulled successfully"
+        } catch (Exception e) {
+          
+            echo "Docker image with this tag is not available. Building a new image."
+            buildApp(applicationName).call()
+            dockerBuildPush(jarSource,imageName).call()
+
+        }
+    }
+}
+
+
 def dockerBuildPush(jarSource, imageName) {
     sh """
         echo "********************** Building Docker Image **********************"
