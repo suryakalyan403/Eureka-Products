@@ -26,7 +26,6 @@ pipeline {
 
     parameters {
         choice(name: 'scanOnly', choices: ['no', 'yes'], description: 'This will scan your application')
-        choice(name: 'buildOnly', choices: ['no', 'yes'], description: 'This will only build your application')
         choice(name: 'dockerPush', choices: ['no', 'yes'], description: 'This will build a Docker image and push it to the registry')
         choice(name: 'deployToDev', choices: ['no', 'yes'], description: 'This will deploy the app to the Dev environment')
         choice(name: 'deployToStage', choices: ['no', 'yes'], description: 'This will deploy the app to the Stage environment')
@@ -67,10 +66,10 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('DockerBuild') {
             when {
                 anyOf {
-                    expression { params.dockerPush == 'yes' }
+                    expression { params.DockerBuild == 'yes' }
                 }
             }
             steps {
@@ -90,7 +89,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Dev') {
+        stage('DeployToDev') {
             when {
                 anyOf {
                     expression { params.deployToDev == 'yes' }
