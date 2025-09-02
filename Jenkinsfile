@@ -147,10 +147,9 @@ pipeline {
             //Only Release Branches should deploy on the stage 
             when {
                allOf {
-                  anyOf {
+                
                      expression { params.deployToStage == 'yes' }
                      branch 'release/*'
-                  }
               }
            }
             steps {
