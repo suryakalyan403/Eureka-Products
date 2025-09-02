@@ -146,10 +146,15 @@ pipeline {
         stage('DeployToStage') {
             //Only Release Branches should deploy on the stage 
             when {
-                anyOf {
-                    expression { params.deployToStage == 'yes' }
-                }
-            }
+               allof {
+                  anyOf {
+                     expression { params.deployToStage == 'yes' }
+                  }
+                  anyOf {
+                     branch 'release/*'
+                  }
+              }
+           }
             steps {
                 echo "***** Deploying to Dev Server *****"
                 withCredentials([usernamePassword(
