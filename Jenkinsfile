@@ -158,23 +158,23 @@ def dockerBuildPush(jarSource, imageName) {
 }
 
 def dockerDeploy(applicationName, imageName, hostPort, containerPort) {
-    sh """
+    sh '''
         sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
         "docker pull ${imageName}"
-    """
+    '''
 
     try {
-        sh """
+        sh '''
             sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
             "docker stop ${applicationName} || true && docker rm ${applicationName} || true"
-        """
+        '''
     } catch (err) {
         echo "Error caught during cleanup: ${err}"
     }
 
-    sh """
+    sh '''
         sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_IP \
         "docker run -dit --name ${applicationName} -p ${hostPort}:${containerPort} ${imageName}"
-    """
+    '''
 }
 
