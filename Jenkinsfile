@@ -163,7 +163,7 @@ pipeline {
             when {
                 allOf {
                     expression { params.deployToProd == 'yes' }
-                    tag pattern: "^v\\d+\\.\\d+\\.\\d+$", comparator: "REGEXP"
+                    tag pattern: '^v\\d+\\.\\d+\\.\\d+$', comparator: 'REGEXP'
                 }
             }
             steps {
