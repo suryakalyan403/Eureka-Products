@@ -28,7 +28,7 @@ pipeline {
         choice(name: 'scanOnly', choices: ['no', 'yes'], description: 'This will scan your application')
         choice(name: 'DockerBuild', choices: ['no', 'yes'], description: 'This will build a Docker image and push it to the registry')
         choice(name: 'deployToDev', choices: ['no', 'yes'], description: 'This will deploy the app to the Dev environment')
-        choice(name: 'deployToTest', choices: ['no', 'yes'], description: 'This will deploy the app to the Dev environment')
+        choice(name: 'deployToTest', choices: ['no', 'yes'], description: 'This will deploy the app to the Test environment')
         choice(name: 'deployToStage', choices: ['no', 'yes'], description: 'This will deploy the app to the Stage environment')
         choice(name: 'deployToProd', choices: ['no', 'yes'], description: 'This will deploy the app to the Prod environment')
     }
@@ -46,9 +46,7 @@ pipeline {
 
         stage('Sonar') {
             when {
-                anyOf {
-                    expression { params.scanOnly == 'yes' }
-                }
+                expression { params.scanOnly == 'yes' }
             }
             steps {
                 echo "***** Starting the SonarQube Scan *****"
@@ -69,16 +67,15 @@ pipeline {
 
         stage('DockerBuild') {
             when {
-                anyOf {
-                    expression { params.DockerBuild == 'yes' }
-                }
+                expression { params.DockerBuild == 'yes' }
             }
             steps {
                 script {
                     echo "***** Starting Docker Build Stage *****"
+
                     def applicationName = "${APPLICATION_NAME}-dev"
-                    def jarSource = "${APPLICATION_NAME}-${POM_VERSION}.${POM_PACKAGING}"
-                    def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                    def jarSource       = "${APPLICATION_NAME}-${POM_VERSION}.${POM_PACKAGING}"
+                    def imageName       = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
 
                     echo "JAR Source: ${jarSource}"
                     echo "Image Name: ${imageName}"
@@ -86,17 +83,13 @@ pipeline {
                     sh "cp ${WORKSPACE}/target/${jarSource} ${jarSource}"
 
                     imageValidation(jarSource, imageName, applicationName)
-                 
                 }
             }
         }
 
         stage('DeployToDev') {
-            // All Branches can deploy in this stage
             when {
-                anyOf {
-                    expression { params.deployToDev == 'yes' }
-                }
+                expression { params.deployToDev == 'yes' }
             }
             steps {
                 echo "***** Deploying to Dev Server *****"
@@ -107,9 +100,9 @@ pipeline {
                 )]) {
                     script {
                         def applicationName = "${APPLICATION_NAME}-dev"
-                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        def hostPort = "5761"
-                        def containerPort = "8761"
+                        def imageName       = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort        = "5761"
+                        def containerPort   = "8761"
 
                         dockerDeploy(applicationName, imageName, hostPort, containerPort)
                     }
@@ -118,11 +111,8 @@ pipeline {
         }
 
         stage('DeployToTest') {
-            // All Branches can deploy in this stage
             when {
-                anyOf {
-                    expression { params.deployToTest == 'yes' }
-                }
+                expression { params.deployToTest == 'yes' }
             }
             steps {
                 echo "***** Deploying to Test Server *****"
@@ -132,10 +122,10 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     script {
-                        def applicationName = "${APPLICATION_NAME}-dev"
-                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        def hostPort = "5761"
-                        def containerPort = "8761"
+                        def applicationName = "${APPLICATION_NAME}-test"
+                        def imageName       = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort        = "6761"
+                        def containerPort   = "8761"
 
                         dockerDeploy(applicationName, imageName, hostPort, containerPort)
                     }
@@ -144,14 +134,12 @@ pipeline {
         }
 
         stage('DeployToStage') {
-            //Only Release Branches should deploy on the stage 
             when {
-               allOf {
-                
-                     expression { params.deployToStage == 'yes' }
-                     branch 'release/*'
-              }
-           }
+                allOf {
+                    expression { params.deployToStage == 'yes' }
+                    branch 'release/*'
+                }
+            }
             steps {
                 echo "***** Deploying to Stage Server *****"
                 withCredentials([usernamePassword(
@@ -161,9 +149,9 @@ pipeline {
                 )]) {
                     script {
                         def applicationName = "${APPLICATION_NAME}-stage"
-                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        def hostPort = "6761"
-                        def containerPort = "8761"
+                        def imageName       = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort        = "7761"
+                        def containerPort   = "8761"
 
                         dockerDeploy(applicationName, imageName, hostPort, containerPort)
                     }
@@ -171,12 +159,11 @@ pipeline {
             }
         }
 
-
         stage('DeployToPRD') {
-            // Only Tag related branches should deploy here
             when {
-                anyOf {
+                allOf {
                     expression { params.deployToProd == 'yes' }
+                    tag pattern: "v\\d{1,2}\\.\\d{1,2}\\.\\d{1,2}", comparator: "REGEX" // v1.2.3
                 }
             }
             steps {
@@ -188,29 +175,26 @@ pipeline {
                 )]) {
                     script {
                         def applicationName = "${APPLICATION_NAME}-prd"
-                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        def hostPort = "7761"
-                        def containerPort = "8761"
+                        def imageName       = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort        = "8761"
+                        def containerPort   = "8761"
 
                         dockerDeploy(applicationName, imageName, hostPort, containerPort)
                     }
                 }
             }
         }
-
-
-
     }
 }
 
 // --------- Functions ---------
+
 def buildApp(applicationName) {
     return {
         echo "Building the ${applicationName} application"
         sh "mvn clean package -DskipTests=true"
     }
 }
-
 
 def imageValidation(jarSource, imageName, applicationName) {
     echo "Attempting to Pull the Docker image"
@@ -224,13 +208,9 @@ def imageValidation(jarSource, imageName, applicationName) {
     }
 }
 
-
-
 def dockerBuildPush(jarSource, imageName) {
     sh """
         echo "********************** Building Docker Image **********************"
-
-
 
         docker build --no-cache \
           --build-arg JAR_SOURCE=${jarSource} \
