@@ -109,7 +109,7 @@ pipeline {
                         def hostPort = "5761"
                         def containerPort = "8761"
 
-                        dockerDeploy(applicationName, imageName, hostPort, containerPort).call()
+                        dockerDeploy(applicationName, imageName, hostPort, containerPort)
                     }
                 }
             }
