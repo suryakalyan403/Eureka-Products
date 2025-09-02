@@ -85,6 +85,7 @@ pipeline {
                     sh "cp ${WORKSPACE}/target/${jarSource} ${jarSource}"
 
                     imageValidation(jarSource, imageName, applicationName).call()
+                 
                 }
             }
         }
@@ -124,23 +125,26 @@ def buildApp(applicationName) {
     }
 }
 
+
 def imageValidation(jarSource, imageName, applicationName) {
-    return {
-        echo "Attempting to Pull the Docker image"
-        try {
-            sh "docker pull ${imageName}"
-            echo "Image pulled successfully"
-        } catch (Exception e) {
-            echo "Docker image with this tag is not available. Building a new image."
-            buildApp(applicationName).call()
-            dockerBuildPush(jarSource, imageName).call()
-        }
+    echo "Attempting to Pull the Docker image"
+    try {
+        sh "docker pull ${imageName}"
+        echo "Image pulled successfully"
+    } catch (Exception e) {
+        echo "Docker image with this tag is not available. Building a new image."
+        buildApp(applicationName)
+        dockerBuildPush(jarSource, imageName)
     }
 }
+
+
 
 def dockerBuildPush(jarSource, imageName) {
     sh """
         echo "********************** Building Docker Image **********************"
+
+
 
         docker build --no-cache \
           --build-arg JAR_SOURCE=${jarSource} \
