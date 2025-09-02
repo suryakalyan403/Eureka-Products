@@ -114,6 +114,60 @@ pipeline {
                 }
             }
         }
+
+        stage('DeployToStage') {
+            when {
+                anyOf {
+                    expression { params.deployToDev == 'yes' }
+                }
+            }
+            steps {
+                echo "***** Deploying to Dev Server *****"
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker_server_creds',
+                    usernameVariable: 'USERNAME',
+                    passwordVariable: 'PASSWORD'
+                )]) {
+                    script {
+                        def applicationName = "${APPLICATION_NAME}-stage"
+                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort = "6761"
+                        def containerPort = "8761"
+
+                        dockerDeploy(applicationName, imageName, hostPort, containerPort)
+                    }
+                }
+            }
+        }
+
+
+        stage('DeployToPRD') {
+            when {
+                anyOf {
+                    expression { params.deployToDev == 'yes' }
+                }
+            }
+            steps {
+                echo "***** Deploying to Dev Server *****"
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker_server_creds',
+                    usernameVariable: 'USERNAME',
+                    passwordVariable: 'PASSWORD'
+                )]) {
+                    script {
+                        def applicationName = "${APPLICATION_NAME}-prd"
+                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort = "7761"
+                        def containerPort = "8761"
+
+                        dockerDeploy(applicationName, imageName, hostPort, containerPort)
+                    }
+                }
+            }
+        }
+
+
+
     }
 }
 
