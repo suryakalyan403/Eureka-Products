@@ -167,6 +167,11 @@ pipeline {
                 }
             }
             steps {
+
+                timeout(time: 300, unit: 'SECONDS') // SECONDS {
+                    input message: "Deploying to ${APPLICATION_NAME}-prd to production ??" ok: 'yes', submitter: 'skalyan-prd'
+
+                }
                 echo "***** Deploying to Production Server *****"
                 withCredentials([usernamePassword(
                     credentialsId: 'docker_server_creds',
