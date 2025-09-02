@@ -28,6 +28,7 @@ pipeline {
         choice(name: 'scanOnly', choices: ['no', 'yes'], description: 'This will scan your application')
         choice(name: 'DockerBuild', choices: ['no', 'yes'], description: 'This will build a Docker image and push it to the registry')
         choice(name: 'deployToDev', choices: ['no', 'yes'], description: 'This will deploy the app to the Dev environment')
+        choice(name: 'deployToTest', choices: ['no', 'yes'], description: 'This will deploy the app to the Dev environment')
         choice(name: 'deployToStage', choices: ['no', 'yes'], description: 'This will deploy the app to the Stage environment')
         choice(name: 'deployToProd', choices: ['no', 'yes'], description: 'This will deploy the app to the Prod environment')
     }
@@ -91,6 +92,7 @@ pipeline {
         }
 
         stage('DeployToDev') {
+            // All Branches can deploy in this stage
             when {
                 anyOf {
                     expression { params.deployToDev == 'yes' }
@@ -115,10 +117,37 @@ pipeline {
             }
         }
 
-        stage('DeployToStage') {
+        stage('DeployToTest') {
+            // All Branches can deploy in this stage
             when {
                 anyOf {
-                    expression { params.deployToDev == 'yes' }
+                    expression { params.deployToTest == 'yes' }
+                }
+            }
+            steps {
+                echo "***** Deploying to Dev Server *****"
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker_server_creds',
+                    usernameVariable: 'USERNAME',
+                    passwordVariable: 'PASSWORD'
+                )]) {
+                    script {
+                        def applicationName = "${APPLICATION_NAME}-dev"
+                        def imageName = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
+                        def hostPort = "5761"
+                        def containerPort = "8761"
+
+                        dockerDeploy(applicationName, imageName, hostPort, containerPort)
+                    }
+                }
+            }
+        }
+
+        stage('DeployToStage') {
+            //Only Release Branches should deploy on the stage 
+            when {
+                anyOf {
+                    expression { params.deployToStage == 'yes' }
                 }
             }
             steps {
@@ -142,9 +171,10 @@ pipeline {
 
 
         stage('DeployToPRD') {
+            // Only Tag related branches should deploy here
             when {
                 anyOf {
-                    expression { params.deployToDev == 'yes' }
+                    expression { params.deployToProd == 'yes' }
                 }
             }
             steps {
