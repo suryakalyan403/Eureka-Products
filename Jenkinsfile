@@ -125,7 +125,7 @@ pipeline {
                 }
             }
             steps {
-                echo "***** Deploying to Dev Server *****"
+                echo "***** Deploying to Test Server *****"
                 withCredentials([usernamePassword(
                     credentialsId: 'docker_server_creds',
                     usernameVariable: 'USERNAME',
@@ -156,7 +156,7 @@ pipeline {
               }
            }
             steps {
-                echo "***** Deploying to Dev Server *****"
+                echo "***** Deploying to Stage Server *****"
                 withCredentials([usernamePassword(
                     credentialsId: 'docker_server_creds',
                     usernameVariable: 'USERNAME',
@@ -183,7 +183,7 @@ pipeline {
                 }
             }
             steps {
-                echo "***** Deploying to Dev Server *****"
+                echo "***** Deploying to Production Server *****"
                 withCredentials([usernamePassword(
                     credentialsId: 'docker_server_creds',
                     usernameVariable: 'USERNAME',
