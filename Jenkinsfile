@@ -26,7 +26,7 @@ pipeline {
 
     parameters {
         choice(name: 'scanOnly', choices: ['no', 'yes'], description: 'This will scan your application')
-        choice(name: 'dockerPush', choices: ['no', 'yes'], description: 'This will build a Docker image and push it to the registry')
+        choice(name: 'DockerBuild', choices: ['no', 'yes'], description: 'This will build a Docker image and push it to the registry')
         choice(name: 'deployToDev', choices: ['no', 'yes'], description: 'This will deploy the app to the Dev environment')
         choice(name: 'deployToStage', choices: ['no', 'yes'], description: 'This will deploy the app to the Stage environment')
         choice(name: 'deployToProd', choices: ['no', 'yes'], description: 'This will deploy the app to the Prod environment')
