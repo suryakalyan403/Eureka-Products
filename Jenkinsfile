@@ -84,7 +84,7 @@ pipeline {
 
                     sh "cp ${WORKSPACE}/target/${jarSource} ${jarSource}"
 
-                    imageValidation(jarSource, imageName, applicationName)
+                    imageValidation(jarSource, imageName, applicationName).call()
                 }
             }
         }
@@ -108,7 +108,7 @@ pipeline {
                         def hostPort = "5761"
                         def containerPort = "8761"
 
-                        dockerDeploy(applicationName, imageName, hostPort, containerPort)
+                        dockerDeploy(applicationName, imageName, hostPort, containerPort).call()
                     }
                 }
             }
