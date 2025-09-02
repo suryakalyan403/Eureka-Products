@@ -151,7 +151,7 @@ pipeline {
                      expression { params.deployToStage == 'yes' }
                   }
                   anyOf {
-                     branch 'release/*'
+                     expression { branch 'release/*' }
                   }
               }
            }
