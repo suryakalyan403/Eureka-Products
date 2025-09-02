@@ -84,7 +84,7 @@ pipeline {
 
                     sh "cp ${WORKSPACE}/target/${jarSource} ${jarSource}"
 
-                    imageValidation(jarSource, imageName, applicationName).call()
+                    imageValidation(jarSource, imageName, applicationName)
                  
                 }
             }
