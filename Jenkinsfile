@@ -149,9 +149,7 @@ pipeline {
                allOf {
                   anyOf {
                      expression { params.deployToStage == 'yes' }
-                  }
-                  anyOf {
-                     expression { branch 'release/*' }
+                     branch 'release/*'
                   }
               }
            }
