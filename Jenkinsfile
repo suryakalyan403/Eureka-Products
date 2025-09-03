@@ -210,7 +210,7 @@ def imageValidation(jarSource, imageName, applicationName) {
         echo "Image pulled successfully"
     } catch (Exception e) {
         echo "Docker image with this tag is not available. Building a new image."
-        buildApp(applicationName)
+        //buildApp(applicationName)
         dockerBuildPush(jarSource, imageName)
     }
 }
