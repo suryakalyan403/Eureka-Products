@@ -11,9 +11,9 @@ spring:
   datasource:
     #    password: Learner@2023
     #    url: jdbc:mysql://34.29.125.76:3306,34.68.236.8:3306/learnerCrownClothing?useSSL=FALSE
-    password: root
-    url: jdbc:mysql://localhost:3306/product_managment?useSSL=FALSE
-    username: root
+    password: skalyan
+    url: jdbc:mysql://104.154.229.153:3306/product_managment?useSSL=FALSE
+    username: db_user
   jpa:
     hibernate:
       ddl-auto: update
@@ -46,4 +46,4 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka-dev.i27carts.in/eureka/
+      defaultZone: http://34.23.196.162:5761/eureka/
