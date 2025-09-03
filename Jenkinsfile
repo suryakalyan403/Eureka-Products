@@ -38,8 +38,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo "***** Starting the Build Stage *****"
-                sh "hostname -i"
-                sh "mvn clean package -DskipTests=true"
                 sh "java -version"
             }
         }
@@ -199,7 +197,7 @@ pipeline {
 def buildApp(applicationName) {
 
     echo "Building the ${applicationName} application"
-    //sh "mvn clean package -DskipTests -Dspring-boot.repackage.skip"
+    sh "mvn clean package -DskipTests -Dspring-boot.repackage.skip"
     
 }
 
@@ -210,7 +208,7 @@ def imageValidation(jarSource, imageName, applicationName) {
         echo "Image pulled successfully"
     } catch (Exception e) {
         echo "Docker image with this tag is not available. Building a new image."
-        //buildApp(applicationName)
+        buildApp(applicationName)
         dockerBuildPush(jarSource, imageName)
     }
 }
