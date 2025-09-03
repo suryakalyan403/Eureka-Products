@@ -3,14 +3,14 @@ FROM openjdk:18
 #Create the Directory
 RUN mkdir -p /opt/eureka-products
 
-#Setting the working directory to /opt/eureka
+#Setting the working directory to /opt/eureka-products
 WORKDIR /opt/eureka-products
 
 #Define Build Time Variables called jar_file to specify the location of the jar file
 ARG JAR_SOURCE
 
 #Copy the Jarfile 
-COPY ["${JAR_SOURCE}","/opt/eureka/eureka-products.jar"]
+COPY ["${JAR_SOURCE}","/opt/eureka-products/eureka-products.jar"]
 
 #Grant RWX perimissions for this directory
 RUN chmod 777 /opt/eureka-products/
@@ -19,4 +19,4 @@ RUN chmod 777 /opt/eureka-products/
 EXPOSE 8761
 
 #Specify the cmd to run the Spring Based application using the JAVA JAR File
-CMD ["java", "-jar", "/opt/eureka/eureka-products.jar"]
+CMD ["java", "-jar", "/opt/eureka-products/eureka-products.jar"]
