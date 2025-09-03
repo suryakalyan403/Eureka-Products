@@ -199,7 +199,7 @@ pipeline {
 def buildApp(applicationName) {
 
     echo "Building the ${applicationName} application"
-    sh "mvn clean package -DskipTests -Dspring-boot.repackage.skip"
+    //sh "mvn clean package -DskipTests -Dspring-boot.repackage.skip"
     
 }
 
