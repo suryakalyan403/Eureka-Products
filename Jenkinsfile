@@ -9,7 +9,7 @@ pipeline {
     }
 
     environment {
-        APPLICATION_NAME = 'eureka'
+        APPLICATION_NAME = 'eureka-products'
 
         // SonarQube
         SONAR_TOKEN = credentials('sonar_creds')
