@@ -197,10 +197,10 @@ pipeline {
 // --------- Functions ---------
 
 def buildApp(applicationName) {
-    return {
-        echo "Building the ${applicationName} application"
-        sh "mvn clean package -DskipTests=true"
-    }
+
+    echo "Building the ${applicationName} application"
+    sh "mvn clean package -DskipTests=true"
+    
 }
 
 def imageValidation(jarSource, imageName, applicationName) {
