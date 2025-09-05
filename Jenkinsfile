@@ -99,7 +99,7 @@ pipeline {
                     script {
                         def applicationName = "${APPLICATION_NAME}-dev"
                         def imageName       = "${DOCKER_HUB}/${APPLICATION_NAME}:${GIT_COMMIT}"
-                        def hostPort        = "5761"
+                        def hostPort        = "5762"
                         def containerPort   = "8761"
 
                         dockerDeploy(applicationName, imageName, hostPort, containerPort)
