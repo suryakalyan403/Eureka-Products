@@ -38,7 +38,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "***** Starting the Build Stage *****"
-                sh "java -version"
+                sh "mvn clean package -DskipTests -Dspring-boot.repackage.skip"
             }
         }
 
